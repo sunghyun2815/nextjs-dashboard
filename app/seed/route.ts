@@ -5,14 +5,18 @@ import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
 
 async function seedUsers() {
-  await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  try {
+    await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
+  } catch (error) {
+    console.log('Extension uuid-ossp might already exist, continuing...');
+  }
   await sql`
-    CREATE TABLE IF NOT EXISTS users (
+      CREATE TABLE IF NOT EXISTS users (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
       name VARCHAR(255) NOT NULL,
       email TEXT NOT NULL UNIQUE,
       password TEXT NOT NULL
-    );
+      );
   `;
 
   const insertedUsers = await Promise.all(
