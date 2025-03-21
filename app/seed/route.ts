@@ -8,7 +8,7 @@ async function seedUsers() {
   try {
     await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
   } catch (error) {
-    console.log('Extension uuid-ossp might already exist, continuing...');
+    console.log('Extension uuid-ossp might already exist, continuing...',error);
   }
   await sql`
       CREATE TABLE IF NOT EXISTS users (
@@ -107,7 +107,7 @@ async function seedRevenue() {
 
 export async function GET() {
   try {
-    const result = await sql.begin((sql) => [
+    await sql.begin(() => [
       seedUsers(),
       seedCustomers(),
       seedInvoices(),
@@ -116,6 +116,7 @@ export async function GET() {
 
     return Response.json({ message: 'Database seeded successfully' });
   } catch (error) {
+    console.error('Seeding error:', error);
     return Response.json({ error }, { status: 500 });
   }
 }
